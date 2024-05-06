@@ -1,0 +1,121 @@
+﻿@page "/weather"
+@using FP.Mqtt.WeatherClient.Business
+@using FP.Mqtt.WeatherClient.Models
+@rendermode InteractiveServer
+@inject IConfiguration Configuration;
+@inject ICrawlerRepository CrawlerRepository;
+
+<PageTitle>Weather</PageTitle>
+
+@if (Model != null)
+{
+    <MudGrid>
+        <MudItem xs="3">
+        </MudItem>
+        <MudItem xs="6">
+            <MudTextField text="@Model.Location?.Name" T="string" Variant="Variant.Outlined" ReadOnly="true" Label="City"></MudTextField>
+        </MudItem>
+        <MudItem xs="3">
+        </MudItem>
+        <MudItem xs="3">
+        </MudItem>
+        <MudItem xs="3">
+            <MudTextField value="@Model.Location?.Latitude" T="decimal" Variant="Variant.Outlined" ReadOnly="true" Label="Latitude"></MudTextField>
+        </MudItem>
+        <MudItem xs="3">
+            <MudTextField value="@Model.Location?.Longitude" T="decimal" Variant="Variant.Outlined" ReadOnly="true" Label="Longitude"></MudTextField>
+        </MudItem>
+        <MudItem xs="3">
+        </MudItem>
+
+        @if (Model.Current != null)
+        {
+            <MudItem xs="3">
+            </MudItem>
+            <MudItem xs="2">
+                <MudTextField @bind-Value="Model.Current.Humidity" T="int" Variant="Variant.Outlined" ReadOnly="true" Label="Humidity"></MudTextField>
+            </MudItem>
+            <MudItem xs="2">
+                <MudTextField @bind-Value="Model.Current.Temperature" T="decimal" Variant="Variant.Outlined" ReadOnly="true" Label="Temperature"></MudTextField>
+            </MudItem>
+            <MudItem xs="2">
+                <MudTimePicker  @bind-time="Model.Current.Timestamp" Variant="Variant.Outlined" ReadOnly="true" Label="Timestamp"></MudTimePicker >
+            </MudItem>
+            <MudItem xs="3">
+            </MudItem>
+        }
+
+
+    </MudGrid>
+
+    
+}
+
+
+
+
+
+@code {
+
+    private ViewModel? Model { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Model = new ViewModel
+        {
+            Location = Configuration.GetSection("location").Get<Models.Location>() ??
+                       new Models.Location("None", 0m, 0m),
+        };
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        
+        await RefreshWeatherData();
+        
+        using var periodicTimer = new PeriodicTimer(TimeSpan.FromSeconds(10));
+        while (await periodicTimer.WaitForNextTickAsync())
+        {
+            await RefreshWeatherData();
+        }
+    }
+    
+    private async Task RefreshWeatherData()
+    {
+        if (Model != null)
+        {
+            var latest = CrawlerRepository.Latest;
+            if (latest != null)
+            {
+                Model.Current = new WeatherViewModel
+                {
+                    Humidity = latest.Humidity,
+                    Temperature = latest.Temperature,
+                    Timestamp = latest.Timestamp.LocalDateTime.TimeOfDay
+                };
+            }
+        }
+        
+        await InvokeAsync(StateHasChanged);
+    }
+    
+    
+
+
+    private class ViewModel
+    {
+        public WeatherViewModel? Current { get; set; }
+        
+        public Location? Location { get; set; }
+    }
+
+    private class WeatherViewModel
+    {
+        public decimal Temperature { get; set; }
+        public int Humidity { get; set; }
+        public TimeSpan? Timestamp { get; set; }
+    }
+  
+}
