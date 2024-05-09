@@ -23,7 +23,7 @@ public class MqttRepository : IMqttRepository
 
     public void Add(string topic, string payload)
     {
-        backingList.Add(new PublishData(topic, payload, DateTimeOffset.Now));
+        backingList.Add(new PublishData(topic, payload));
     }
     
     public IReadOnlyList<PublishData> GetAllData()

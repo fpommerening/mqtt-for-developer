@@ -49,13 +49,35 @@
         <MudSlider @bind-Value="@Model.PublishSettings.Interval"  Size="Size.Large"  Min="5" Max="60">Publish Interval: @Model.PublishSettings?.Interval Seconds</MudSlider>
     </MudItem>
     <MudItem xs="3"/>
-
+    
+    <MudItem xs="2"/>
+    <MudItem xs="8">
+        <MudTable Items="SortedData" Hover="true" Striped="true" Bordered="true" Breakpoint="Breakpoint.Sm">
+            <HeaderContent>
+                <MudTh>Topic</MudTh>
+                <MudTh>Payload</MudTh>
+                <MudTh>Published at</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Topic">@context.Topic</MudTd>
+                <MudTd DataLabel="Payload">@context.Payload</MudTd>
+                <MudTd DataLabel="Timestamp">@context.Timestamp</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudItem>
+    <MudItem xs="2"/>
     
 </MudGrid>
 
 
 @code {
     private ViewModel? Model { get; set; }
+    
+    private IEnumerable<PublishData> SortedData
+    {
+        get { return Model.LatestData.OrderByDescending(x => x.Timestamp); }
+    }
 
     protected override void OnInitialized()
     {
@@ -69,6 +91,32 @@
             Protocol = new ProtocolViewModel(settings.Protocol)
         };
     }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        
+        await RefreshMqttData();
+        
+        using var periodicTimer = new PeriodicTimer(TimeSpan.FromSeconds(5));
+        while (await periodicTimer.WaitForNextTickAsync())
+        {
+            await RefreshMqttData();
+        }
+    }
+    
+    private async Task RefreshMqttData()
+    {
+        if (Model != null)
+        {
+            var latestData = MqttRepository.GetAllData().OrderByDescending(x=>x.Timestamp).Take(50).ToList();
+            var ids = latestData.Select(x => x.Id).ToArray();
+            Model.LatestData.RemoveAll(x => ids.Contains(x.Id) == false);
+            Model.LatestData.AddRange(latestData.Where(data => Model.LatestData.All(x => x.Id != data.Id)));
+        }
+        
+        await InvokeAsync(StateHasChanged);
+    }
 
     private class ViewModel
     {
@@ -77,6 +125,8 @@
         public MqttSettings? MqttSettings { get; set; }
         
         public ProtocolViewModel Protocol { get; set; }
+
+        public List<PublishData> LatestData { get; } = new();
     }
 
     private class PublishViewModel
@@ -102,19 +152,12 @@
         }
     }
 
-    private class ProtocolViewModel
+    private class ProtocolViewModel(string value)
     {
-        private string _value;
-
-        public ProtocolViewModel(string value)
-        {
-            _value = value;
-        }
-
-        public bool Mqtt => _value.Equals("mqtt", StringComparison.InvariantCultureIgnoreCase);
-        public bool Mqtts => _value.Equals("mqtts", StringComparison.InvariantCultureIgnoreCase);
-        public bool Ws => _value.Equals("ws", StringComparison.InvariantCultureIgnoreCase);
-        public bool Wss => _value.Equals("wss", StringComparison.InvariantCultureIgnoreCase);
+        public bool Mqtt => value.Equals("mqtt", StringComparison.InvariantCultureIgnoreCase);
+        public bool Mqtts => value.Equals("mqtts", StringComparison.InvariantCultureIgnoreCase);
+        public bool Ws => value.Equals("ws", StringComparison.InvariantCultureIgnoreCase);
+        public bool Wss => value.Equals("wss", StringComparison.InvariantCultureIgnoreCase);
     }
 
 }
