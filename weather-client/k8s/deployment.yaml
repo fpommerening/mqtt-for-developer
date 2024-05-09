@@ -1,0 +1,186 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-client-london
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weather-client
+      city: london
+  template:
+    metadata:
+      labels:
+        app: weather-client
+        city: london
+    spec:
+      containers:
+      - image: ghcr.io/fpommerening/mqtt.weather-client:latest
+        name: app
+        envFrom:
+          - configMapRef:
+              name: weather-cm
+        env:
+          - name: Location__Name
+            value: "London"
+          - name: Location__Longitude
+            value: "-0.1257"
+          - name: Location__Latitude
+            value: "51.5085"
+      
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-client-hamburg
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weather-client
+      city: hamburg
+  template:
+    metadata:
+      labels:
+        app: weather-client
+        city: hamburg
+    spec:
+      containers:
+      - image: ghcr.io/fpommerening/mqtt.weather-client:latest
+        name: app
+        envFrom:
+          - configMapRef:
+              name: weather-cm
+        env:
+          - name: Location__Name
+            value: "Hamburg"
+          - name: Location__Longitude
+            value: "9.993"
+          - name: Location__Latitude
+            value: "53.5507"
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-client-leipzig
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weather-client
+      city: leipzig
+  template:
+    metadata:
+      labels:
+        app: weather-client
+        city: leipzig
+    spec:
+      containers:
+      - image: ghcr.io/fpommerening/mqtt.weather-client:latest
+        name: app
+        envFrom:
+          - configMapRef:
+              name: weather-cm
+        env:
+          - name: Location__Name
+            value: "Leipzig"
+          - name: Location__Longitude
+            value: "12.3713"
+          - name: Location__Latitude
+            value: "51.3396"
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-client-muenchen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weather-client
+      city: muenchen
+  template:
+    metadata:
+      labels:
+        app: weather-client
+        city: muenchen
+    spec:
+      containers:
+      - image: ghcr.io/fpommerening/mqtt.weather-client:latest
+        name: app
+        envFrom:
+          - configMapRef:
+              name: weather-cm
+        env:
+          - name: Location__Name
+            value: "München"
+          - name: Location__Longitude
+            value: "13.4631"
+          - name: Location__Latitude
+            value: "48.6967"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-client-magdeburg
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weather-client
+      city: magdeburg
+  template:
+    metadata:
+      labels:
+        app: weather-client
+        city: magdeburg
+    spec:
+      containers:
+      - image: ghcr.io/fpommerening/mqtt.weather-client:latest
+        name: app
+        envFrom:
+          - configMapRef:
+              name: weather-cm
+        env:
+          - name: Location__Name
+            value: "Magdeburg"
+          - name: Location__Longitude
+            value: "13.41"
+          - name: Location__Latitude
+            value: "52.52"
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weather-client-berlin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weather-client
+      city: berlin
+  template:
+    metadata:
+      labels:
+        app: weather-client
+        city: berlin
+    spec:
+      containers:
+      - image: ghcr.io/fpommerening/mqtt.weather-client:latest
+        name: app
+        envFrom:
+          - configMapRef:
+              name: weather-cm
+        env:
+          - name: Location__Name
+            value: "Berlin"
+          - name: Location__Longitude
+            value: "13.4105"
+          - name: Location__Latitude
+            value: "52.5244"

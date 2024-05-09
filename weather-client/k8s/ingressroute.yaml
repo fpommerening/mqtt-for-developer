@@ -1,0 +1,96 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: weather-client-london
+  annotations: 
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`weather-london.demo-apps.de`)
+    kind: Rule
+    services:
+    - name: weather-client-london
+      port: 80
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: weather-client-hamburg
+  annotations: 
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`weather-hamburg.demo-apps.de`)
+    kind: Rule
+    services:
+    - name: weather-client-hamburg
+      port: 80
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: weather-client-leipzig
+  annotations: 
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`weather-leipzig.demo-apps.de`)
+    kind: Rule
+    services:
+    - name: weather-client-leipzig
+      port: 80
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: weather-client-magdeburg
+  annotations: 
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`weather-magdeburg.demo-apps.de`)
+    kind: Rule
+    services:
+    - name: weather-client-magdeburg
+      port: 80
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: weather-client-muenchen
+  annotations: 
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`weather-muenchen.demo-apps.de`)
+    kind: Rule
+    services:
+    - name: weather-client-muenchen
+      port: 80
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: weather-client-berlin
+  annotations: 
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`weather-berlin.demo-apps.de`)
+    kind: Rule
+    services:
+    - name: weather-client-berlin
+      port: 80
+---

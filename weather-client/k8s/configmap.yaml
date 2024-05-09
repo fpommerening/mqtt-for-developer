@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: weather-cm
+data:
+  Mqtt__Host: emqx.emqx.svc.cluster.local
+  Mqtt__Port: "1883"
+  Mqtt__Protocol: mqtt
+  Mqtt__User: frank
+  Mqtt__Password: mqtt4ever
