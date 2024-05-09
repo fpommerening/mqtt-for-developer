@@ -1,22 +1,117 @@
 @page "/Mqtt"
+@using FP.Mqtt.WeatherClient.Business
+@using FP.Mqtt.WeatherClient.Models
 @rendermode InteractiveServer
-<h3>Mqtt</h3>
+@inject IConfiguration Configuration;
+@inject IMqttRepository MqttRepository;
 
 <PageTitle>MQTT-Settings</PageTitle>
 
+@if (Model == null)
+{
+    return;
+}
+
 <MudGrid>
+    <MudItem xs="3"/>
     <MudItem xs="3">
+        <MudTextField text="@Model.MqttSettings?.Host"  T="string" Variant="Variant.Outlined" ReadOnly="true" Label="Broker"></MudTextField>
     </MudItem>
+    <MudItem xs="1">
+        <MudTextField value="@Model.MqttSettings?.Port"  T="int" Variant="Variant.Outlined" ReadOnly="true" Label="Port"></MudTextField>
+    </MudItem>
+    <MudItem xs="2">
+        <MudStack Row="true" Justify="Justify.Center" Spacing="5">
+            <MudCheckBox value="@Model.Protocol?.Mqtt" T="bool" ReadOnly="true" Label="MQTT"></MudCheckBox>
+            <MudCheckBox value="@Model.Protocol?.Mqtts" T="bool" ReadOnly="true" Label="MQTTS"></MudCheckBox>
+            <MudCheckBox value="@Model.Protocol?.Ws" T="bool" ReadOnly="true" Label="WS"></MudCheckBox>
+            <MudCheckBox value="@Model.Protocol?.Wss" T="bool" ReadOnly="true" Label="WSS"></MudCheckBox>
+        </MudStack>
+    </MudItem>
+    <MudItem xs="3"/>
+    @if (!string.IsNullOrEmpty(Model.MqttSettings?.User) && !string.IsNullOrEmpty(Model.MqttSettings?.User))
+    {
+        <MudItem xs="3"/>
+        
+        <MudItem xs="3">
+            <MudTextField text="@Model.MqttSettings?.User"  T="string" Variant="Variant.Outlined" ReadOnly="true" Label="User"></MudTextField>
+        </MudItem>
+        <MudItem xs="3">
+            <MudTextField text="@Model.MqttSettings?.Password"  T="string" Variant="Variant.Outlined" ReadOnly="true" Label="Password"></MudTextField>
+        </MudItem>
+        <MudItem xs="3"/>
+    }
+    <MudItem xs="3"/>
     <MudItem xs="6">
-        <MudTextField  T="string" Variant="Variant.Outlined" ReadOnly="true" Label="Broker"></MudTextField>
+        <MudSlider @bind-Value="@Model.PublishSettings.Interval"  Size="Size.Large"  Min="5" Max="60">Publish Interval: @Model.PublishSettings?.Interval Seconds</MudSlider>
     </MudItem>
-    <MudItem xs="3">
-    </MudItem>
+    <MudItem xs="3"/>
+
+    
 </MudGrid>
 
 
-    @code {
+@code {
+    private ViewModel? Model { get; set; }
+
+    protected override void OnInitialized()
+    {
+        var settings = Configuration.GetSection("mqtt").Get<Models.MqttSettings>() ??
+                       new MqttSettings("none", 0, string.Empty, string.Empty, string.Empty, string.Empty);
         
-      
-    
+        Model = new ViewModel
+        {
+            MqttSettings = settings,
+            PublishSettings = new PublishViewModel(MqttRepository),
+            Protocol = new ProtocolViewModel(settings.Protocol)
+        };
+    }
+
+    private class ViewModel
+    {
+        public PublishViewModel? PublishSettings { get; set; }
+
+        public MqttSettings? MqttSettings { get; set; }
+        
+        public ProtocolViewModel Protocol { get; set; }
+    }
+
+    private class PublishViewModel
+    {
+        private readonly IMqttRepository _mqttRepository;
+
+        public PublishViewModel(IMqttRepository mqttRepository)
+        {
+            _mqttRepository = mqttRepository;
+            _interval = _mqttRepository.GetPublishInterval().Seconds;
+        }
+
+        private int _interval;
+
+        public int Interval
+        {
+            get => _interval;
+            set
+            {
+                _interval = value;
+                _mqttRepository.SetPublishInterval(value);
+            }
+        }
+    }
+
+    private class ProtocolViewModel
+    {
+        private string _value;
+
+        public ProtocolViewModel(string value)
+        {
+            _value = value;
+        }
+
+        public bool Mqtt => _value.Equals("mqtt", StringComparison.InvariantCultureIgnoreCase);
+        public bool Mqtts => _value.Equals("mqtts", StringComparison.InvariantCultureIgnoreCase);
+        public bool Ws => _value.Equals("ws", StringComparison.InvariantCultureIgnoreCase);
+        public bool Wss => _value.Equals("wss", StringComparison.InvariantCultureIgnoreCase);
+    }
+
 }

@@ -13,6 +13,7 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddMudServices();
 
 builder.Services.AddSingleton<ICrawlerRepository, CrawlerRepository>();
+builder.Services.AddSingleton<IMqttRepository, MqttRepository>();
 
 builder.Services.AddHttpClient("open-meteo", c=>
 {
@@ -20,6 +21,7 @@ builder.Services.AddHttpClient("open-meteo", c=>
 });
 
 builder.Services.AddHostedService<WeatherCrawlerService>();
+builder.Services.AddHostedService<MqttClientService>();
 
 var app = builder.Build();
 
