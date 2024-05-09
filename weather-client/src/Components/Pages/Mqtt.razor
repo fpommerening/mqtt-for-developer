@@ -14,13 +14,16 @@
 
 <MudGrid>
     <MudItem xs="3"/>
-    <MudItem xs="3">
+    <MudItem xs="4">
         <MudTextField text="@Model.MqttSettings?.Host"  T="string" Variant="Variant.Outlined" ReadOnly="true" Label="Broker"></MudTextField>
     </MudItem>
-    <MudItem xs="1">
+    <MudItem xs="2">
         <MudTextField value="@Model.MqttSettings?.Port"  T="int" Variant="Variant.Outlined" ReadOnly="true" Label="Port"></MudTextField>
     </MudItem>
-    <MudItem xs="2">
+    <MudItem xs="3"/>
+
+    <MudItem xs="3"/>
+    <MudItem xs="6">
         <MudStack Row="true" Justify="Justify.Center" Spacing="5">
             <MudCheckBox value="@Model.Protocol?.Mqtt" T="bool" ReadOnly="true" Label="MQTT"></MudCheckBox>
             <MudCheckBox value="@Model.Protocol?.Mqtts" T="bool" ReadOnly="true" Label="MQTTS"></MudCheckBox>
